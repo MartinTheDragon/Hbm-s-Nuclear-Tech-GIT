@@ -16,24 +16,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServerProxy {
-	
+
 	private static final I18nServer I18N = new I18nServer();
 
 	//sort by estimated time of display. longer lasting ones should be sorted at the top.
 	public static final int ID_DUCK = 0;
 	public static final int ID_FILTER = 1;
-	public static final int ID_COMPASS = 2;
-	public static final int ID_CABLE = 3;
-	public static final int ID_DRONE = 4;
-	public static final int ID_JETPACK = 5;
-	public static final int ID_MAGNET = 6;
-	public static final int ID_HUD = 7;
-	public static final int ID_DETONATOR = 8;
-	public static final int ID_FLUID_ID = 9;
-	public static final int ID_FAN_MODE = 10;
-	public static final int ID_TOOLABILITY = 11;
-	public static final int ID_GAS_HAZARD = 12;
-	
+	public static final int ID_RADIO = 2;
+	public static final int ID_COMPASS = 3;
+	public static final int ID_CABLE = 4;
+	public static final int ID_DRONE = 5;
+	public static final int ID_JETPACK = 6;
+	public static final int ID_MAGNET = 7;
+	public static final int ID_HUD = 8;
+	public static final int ID_DETONATOR = 9;
+	public static final int ID_FLUID_ID = 10;
+	public static final int ID_FAN_MODE = 11;
+	public static final int ID_TOOLABILITY = 12;
+	public static final int ID_GAS_HAZARD = 13;
+
 	public ITranslate getI18n() { return I18N; }
 
 	public void registerPreRenderInfo() { }
@@ -60,13 +61,13 @@ public class ServerProxy {
 	public void displayTooltip(String msg, int id) {
 		displayTooltip(msg, 1000, id);
 	}
-	
+
 	public void displayTooltip(String msg, int time, int id) { }
 
 	public boolean getIsKeyPressed(EnumKeybind key) {
 		return false;
 	}
-	
+
 	public EntityPlayer me() {
 		return null;
 	}
@@ -101,4 +102,8 @@ public class ServerProxy {
 	public String getLanguageCode() { return "en_US"; }
 
 	public int getStackColor(ItemStack stack, boolean amplify) { return 0x000000; }
+
+	public void switchRadioChannel(World world, int x, int y, int z, String channel, boolean asBgMusic) {
+
+	}
 }

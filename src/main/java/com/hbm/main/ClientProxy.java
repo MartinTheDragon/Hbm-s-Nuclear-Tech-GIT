@@ -14,6 +14,7 @@ import com.hbm.blocks.machine.PistonInserter.TileEntityPistonInserter;
 import com.hbm.blocks.machine.WatzPump.TileEntityWatzPump;
 import com.hbm.blocks.network.FluidPump.TileEntityFluidPump;
 import com.hbm.config.GeneralConfig;
+import com.hbm.config.RadioConfig;
 import com.hbm.entity.cart.EntityMinecartCrate;
 import com.hbm.entity.cart.EntityMinecartNTM;
 import com.hbm.entity.effect.*;
@@ -75,6 +76,7 @@ import com.hbm.render.util.RenderOverhead;
 import com.hbm.render.util.RenderOverhead.Marker;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.sound.AudioWrapperClient;
+import com.hbm.sound.Radio;
 import com.hbm.tileentity.TileEntityDoorGeneric;
 import com.hbm.tileentity.bomb.*;
 import com.hbm.tileentity.deco.*;
@@ -134,11 +136,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class ClientProxy extends ServerProxy {
-	
+
 	private static final I18nClient I18N = new I18nClient();
 
 	public RenderInfoSystem theInfoSystem = new RenderInfoSystem();
-	
+
 	public ITranslate getI18n() { return I18N; }
 
 	/** Runs just before item an block init */
@@ -782,7 +784,7 @@ public class ClientProxy extends ServerProxy {
 	public void registerBlockRenderer() {
 
 		RenderingRegistry.registerBlockHandler(new RenderISBRHUniversal());
-		
+
 		/// STOP DOING THIS ///
 		RenderingRegistry.registerBlockHandler(new RenderScaffoldBlock());
 		RenderingRegistry.registerBlockHandler(new RenderTapeBlock());
@@ -2157,5 +2159,11 @@ public class ClientProxy extends ServerProxy {
 		int color = ColorUtil.getAverageColorFromStack(stack);
 		if(amplify) color = ColorUtil.amplifyColor(color);
 		return color;
+	}
+
+	@Override
+	public void switchRadioChannel(World world, int x, int y, int z, String channel, boolean asBgMusic) {
+		if (world != Minecraft.getMinecraft().theWorld) return;
+		String source = Radio.switchRadioChannel(asBgMusic ? null : new BlockPos(x, y, z), channel, 1F, RadioConfig.maxRange);
 	}
 }

@@ -254,7 +254,7 @@ public class MainRegistry {
 	@EventHandler
 	public void PreLoad(FMLPreInitializationEvent PreEvent) {
 		CrashHelper.init();
-		
+
 		QMAWLoader.registerModFileURL(FMLCommonHandler.instance().findContainerFor(RefStrings.MODID).getSource());
 
 		startupTime = System.currentTimeMillis();
@@ -999,6 +999,7 @@ public class MainRegistry {
 		WeaponConfig.loadFromConfig(config);
 		MobConfig.loadFromConfig(config);
 		StructureConfig.loadFromConfig(config);
+		RadioConfig.loadFromConfig(config);
 
 		config.save();
 

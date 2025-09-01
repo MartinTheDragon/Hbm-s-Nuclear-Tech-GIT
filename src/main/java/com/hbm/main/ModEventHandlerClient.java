@@ -1,5 +1,16 @@
 package com.hbm.main;
 
+import java.lang.reflect.Method;
+import java.util.*;
+
+import com.hbm.sound.*;
+import net.minecraft.client.gui.GuiIngameMenu;
+import net.minecraftforge.client.event.sound.SoundSetupEvent;
+import net.minecraftforge.event.world.WorldEvent;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
 import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockAshes;
@@ -120,6 +131,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import paulscode.sound.SoundSystemConfig;
+import paulscode.sound.SoundSystemException;
 
 public class ModEventHandlerClient {
 
@@ -228,7 +241,7 @@ public class ModEventHandlerClient {
 						((ILookOverlay) entity).printHook(event, world, 0, 0, 0);
 					}
 				}
-				
+
 				GL11.glColor4f(1F, 1F, 1F, 1F);
 			}
 
@@ -888,6 +901,8 @@ public class ModEventHandlerClient {
 			if(ArmorUtil.isWearingEmptyMask(mc.thePlayer)) {
 				MainRegistry.proxy.displayTooltip(EnumChatFormatting.RED + "Your mask has no filter!", MainRegistry.proxy.ID_FILTER);
 			}
+
+			Radio.updateMusicInfoDisplay();
 		}
 
 		if(Keyboard.isKeyDown(Keyboard.KEY_F1) && Minecraft.getMinecraft().currentScreen != null) {
@@ -950,7 +965,7 @@ public class ModEventHandlerClient {
 					ItemDepletedFuel.class,
 					ItemFluidDuct.class
 				);
-				
+
 				String prefix = "Gun ";
 				//int gunScale = 16;
 				//int defaultScale = 1;
@@ -1064,11 +1079,11 @@ public class ModEventHandlerClient {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onClientTickLast(ClientTickEvent event) {
-		
+
 		Minecraft mc = Minecraft.getMinecraft();
 		long millis = Clock.get_ms();
 		if(millis == 0) millis = System.currentTimeMillis();
-		
+
 		if(GeneralConfig.enableLoadScreenReplacement && loadingScreenReplacementRetry < 25 && !(mc.loadingScreen instanceof LoadingScreenRendererNT) && millis > lastLoadScreenReplacement + 5_000) {
 			mc.loadingScreen = new LoadingScreenRendererNT(mc);
 			lastLoadScreenReplacement = millis;
@@ -1166,7 +1181,7 @@ public class ModEventHandlerClient {
 	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
 
 		Clock.update();
-		
+
 		BlockRebar.renderRebar(Minecraft.getMinecraft().theWorld.loadedTileEntityList, event.partialTicks);
 
 		GL11.glPushMatrix();
@@ -1257,7 +1272,7 @@ public class ModEventHandlerClient {
 
 				if(chestplate.thermal) thermalSights = true;
 			}
-			
+
 			if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemGunBaseNT && ItemGunBaseNT.aimingProgress == 1) {
 				ItemGunBaseNT gun = (ItemGunBaseNT) player.getHeldItem().getItem();
 				for(int i = 0; i < gun.getConfigCount(); i++) if(gun.getConfig(player.getHeldItem(), i).hasThermalSights(player.getHeldItem())) thermalSights = true;
@@ -1391,6 +1406,11 @@ public class ModEventHandlerClient {
 	}
 
 	@SubscribeEvent
+	public void onWorldUnload(WorldEvent.Unload ignored) {
+		Radio.stopAll();
+	}
+
+	@SubscribeEvent
 	public void onOpenGUI(GuiOpenEvent event) {
 
 		if(event.gui instanceof GuiMainMenu && ClientConfig.MAIN_MENU_WACKY_SPLASHES.get()) {
@@ -1416,6 +1436,24 @@ public class ModEventHandlerClient {
 			double d = Math.random();
 			if(d < 0.1) main.splashText = "Redditors aren't people!";
 			else if(d < 0.2) main.splashText = "Can someone tell me what corrosive fumes the people on Reddit are huffing so I can avoid those more effectively?";
+		} else if(event.gui instanceof GuiIngameMenu) {
+			if(Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic()) {
+				Radio.silence();
+			}
+		} else if(event.gui == null) {
+			if(Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic()) {
+				Radio.resume();
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onSoundSetup(SoundSetupEvent ignored) {
+		try {
+			SoundSystemConfig.setCodec(Radio.Codecs.NTM_ANY_STREAM, Radio.ProxyStream.class);
+			SoundSystemConfig.setCodec(Radio.Codecs.NTM_VORBIS, Radio.CodecJOrbisStream.class);
+		} catch (SoundSystemException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
